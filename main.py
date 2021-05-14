@@ -78,14 +78,26 @@ def detect(input_image):
 
       counted_classes = count_objects(pred_bbox, by_class = True, allowed_classes=allowed_classes)
       # loop through dict and print
+      string = ""
+      for key, value in counted_classes.items():
+        string = string + " " +"Number of {}s: {}".format(key, value)
+            
       image = utils.draw_bbox(original_image, pred_bbox, False, counted_classes, allowed_classes=allowed_classes, read_plate = False)
             
       image = Image.fromarray(image.astype(np.uint8))
       image = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
       
       cv2.imwrite('./detections/' + 'detection' + '.png', image)
-      return image
+      return image, string
 
+def sepia(img):
+  sepia_filter = np.array([[.393, .769, .189],
+                           [.349, .686, .168],
+                           [.272, .534, .131]])
+  sepia_img = img.dot(sepia_filter.T)
+  sepia_img /= sepia_img.max()                          
+  return sepia_img
+  
 #detect('./data/images/kite.jpg')
-iface = gr.Interface(detect, "image", "image")
+iface = gr.Interface(detect, "image", ["image", "text"])
 iface.launch(debug = True)
